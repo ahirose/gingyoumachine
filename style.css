@@ -1,0 +1,216 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #f5f0e8;
+  --fg: #2d1b14;
+  --accent: #8b4513;
+  --card: #fff;
+  --radius: 12px;
+}
+
+body {
+  font-family: "Hiragino Mincho ProN", "Yu Mincho", serif;
+  background: var(--bg);
+  color: var(--fg);
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: var(--fg);
+  color: var(--bg);
+}
+
+header h1 { font-size: 1.2rem; font-weight: 600; }
+
+#settingsBtn {
+  background: none;
+  border: none;
+  color: var(--bg);
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+
+/* メイン画面 */
+#mainScreen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 16px;
+}
+
+#captureArea {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-height: 300px;
+}
+
+#captureBtn {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  border: 3px solid var(--accent);
+  background: var(--card);
+  color: var(--accent);
+  font-size: 2.5rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: transform 0.15s;
+}
+
+#captureBtn span { font-size: 0.85rem; }
+#captureBtn:active { transform: scale(0.95); }
+
+/* 履歴 */
+#history {
+  width: 100%;
+  margin-top: 24px;
+}
+
+#history h3 {
+  font-size: 0.9rem;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+.history-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 8px;
+}
+
+.history-grid img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* スクリーン共通 */
+.screen[hidden] { display: none !important; }
+.screen {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  z-index: 10;
+}
+
+/* ローディング */
+.loader {
+  width: 48px;
+  height: 48px;
+  border: 4px solid var(--accent);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+#loadingScreen p {
+  margin-top: 16px;
+  font-size: 1rem;
+  color: var(--accent);
+}
+
+/* 結果画面 */
+#resultScreen {
+  gap: 16px;
+}
+
+#resultCanvas {
+  max-width: 100%;
+  max-height: 55dvh;
+  border-radius: var(--radius);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+
+#haikuText {
+  font-size: 1.2rem;
+  text-align: center;
+  line-height: 2;
+  color: var(--accent);
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.actions button {
+  padding: 10px 20px;
+  border: 2px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: var(--accent);
+  font-family: inherit;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.actions button:active { background: var(--accent); color: #fff; }
+
+/* 設定画面 */
+#settingsScreen {
+  gap: 16px;
+}
+
+#settingsScreen h2 {
+  font-size: 1.3rem;
+  color: var(--accent);
+}
+
+#settingsScreen label {
+  font-size: 0.9rem;
+  align-self: flex-start;
+  width: 100%;
+  max-width: 400px;
+}
+
+#apiKeyInput {
+  width: 100%;
+  max-width: 400px;
+  padding: 12px;
+  border: 2px solid var(--accent);
+  border-radius: var(--radius);
+  font-family: monospace;
+  font-size: 0.9rem;
+  background: var(--card);
+}
+
+#settingsScreen button {
+  padding: 10px 32px;
+  border: 2px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--accent);
+  color: #fff;
+  font-family: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+#closeSettingsBtn {
+  background: var(--card) !important;
+  color: var(--accent) !important;
+}

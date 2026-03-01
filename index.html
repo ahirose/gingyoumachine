@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>吟行マシン</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2d1b14">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- ヘッダー -->
+  <header>
+    <h1>吟行マシン</h1>
+    <button id="settingsBtn" aria-label="設定">⚙</button>
+  </header>
+
+  <!-- メイン画面 -->
+  <main id="mainScreen">
+    <div id="captureArea">
+      <input type="file" id="cameraInput" accept="image/*" capture="environment" hidden>
+      <button id="captureBtn">📷<span>写真を撮る</span></button>
+    </div>
+    <div id="history"></div>
+  </main>
+
+  <!-- ローディング画面 -->
+  <div id="loadingScreen" class="screen" hidden>
+    <div class="loader"></div>
+    <p>俳句を詠んでいます…</p>
+  </div>
+
+  <!-- 結果画面 -->
+  <div id="resultScreen" class="screen" hidden>
+    <canvas id="resultCanvas"></canvas>
+    <div id="haikuText"></div>
+    <div class="actions">
+      <button id="saveBtn">💾 保存</button>
+      <button id="shareBtn" hidden>📤 共有</button>
+      <button id="retryBtn">🔄 やり直す</button>
+    </div>
+  </div>
+
+  <!-- 設定画面 -->
+  <div id="settingsScreen" class="screen" hidden>
+    <h2>設定</h2>
+    <label for="apiKeyInput">Claude APIキー</label>
+    <input type="password" id="apiKeyInput" placeholder="sk-ant-...">
+    <button id="saveKeyBtn">保存</button>
+    <button id="closeSettingsBtn">閉じる</button>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
