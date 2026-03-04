@@ -19,13 +19,13 @@ function showScreen(screen) {
 
 // --- 設定 ---
 $('settingsBtn').onclick = () => {
-  apiKeyInput.value = localStorage.getItem('claude_api_key') || '';
+  apiKeyInput.value = localStorage.getItem('gemini_api_key') || '';
   showScreen(settingsScreen);
 };
 
 $('saveKeyBtn').onclick = () => {
   const key = apiKeyInput.value.trim();
-  if (key) localStorage.setItem('claude_api_key', key);
+  if (key) localStorage.setItem('gemini_api_key', key);
   showScreen(mainScreen);
 };
 
@@ -33,7 +33,7 @@ $('closeSettingsBtn').onclick = () => showScreen(mainScreen);
 
 // --- カメラ ---
 $('captureBtn').onclick = () => {
-  if (!localStorage.getItem('claude_api_key')) {
+  if (!localStorage.getItem('gemini_api_key')) {
     alert('先にAPIキーを設定してください');
     showScreen(settingsScreen);
     return;
@@ -82,33 +82,21 @@ function resizeAndEncode(file) {
   });
 }
 
-// --- Claude API ---
+// --- Gemini API ---
 async function generateHaiku(base64) {
-  const apiKey = localStorage.getItem('claude_api_key');
+  const apiKey = localStorage.getItem('gemini_api_key');
   if (!apiKey) throw new Error('APIキーが設定されていません');
 
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true'
+      'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 100,
-      messages: [{
-        role: 'user',
-        content: [
-          {
-            type: 'image',
-            source: { type: 'base64', media_type: 'image/jpeg', data: base64 }
-          },
-          {
-            type: 'text',
-            text: 'この写真を見て、季語を含む俳句を一句詠んでください。五七五の形式で、俳句のみを出力してください。余計な説明は不要です。'
-          }
+      contents: [{
+        parts: [
+          { inlineData: { mimeType: 'image/jpeg', data: base64 } },
+          { text: 'この写真を見て、季語を含む俳句を一句詠んでください。五七五の形式で、俳句のみを出力してください。余計な説明は不要です。' }
         ]
       }]
     })
@@ -120,7 +108,7 @@ async function generateHaiku(base64) {
   }
 
   const data = await res.json();
-  return data.content[0].text.trim();
+  return data.candidates[0].content.parts[0].text.trim();
 }
 
 // --- 合成 ---

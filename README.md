@@ -14,14 +14,14 @@ A PWA app that generates haiku poems from your photos using AI.
 
 ## 使い方 / How to Use
 
-1. ⚙ 設定画面で [Claude APIキー](https://console.anthropic.com/) を入力
+1. ⚙ 設定画面で [Gemini APIキー](https://aistudio.google.com/apikey) を入力
 2. 📷 「写真を撮る」ボタンで撮影
 3. 🤖 AIが写真を読み取り、季語を含む俳句を生成
 4. 🖼️ 写真に俳句が合成された画像を保存・共有
 
 ---
 
-1. ⚙ Enter your [Claude API key](https://console.anthropic.com/) in Settings
+1. ⚙ Enter your [Gemini API key](https://aistudio.google.com/apikey) in Settings
 2. 📷 Tap "Take Photo" to capture
 3. 🤖 AI reads the photo and generates a haiku with a seasonal word
 4. 🖼️ Save or share the composited image
@@ -29,7 +29,7 @@ A PWA app that generates haiku poems from your photos using AI.
 ## 技術スタック / Tech Stack
 
 - HTML / CSS / JavaScript（フレームワーク不使用 / no frameworks）
-- [Claude API](https://docs.anthropic.com/)（claude-haiku-4-5） — 画像認識 + 俳句生成 / image recognition + haiku generation
+- [Gemini API](https://ai.google.dev/)（gemini-2.0-flash） — 画像認識 + 俳句生成 / image recognition + haiku generation
 - Canvas API — 画像合成・縦書き描画 / image compositing & vertical text
 - Service Worker — オフラインキャッシュ / offline caching
 - Web Share API — 共有機能 / sharing
