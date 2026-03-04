@@ -128,12 +128,16 @@ function compositeImage(base64, haiku) {
 
       // 縦書き俳句の配置計算
       const chars = haiku.replace(/\s+/g, '\n').split('');
-      const fontSize = Math.max(24, Math.round(img.height / 16));
+      const printable = chars.filter(c => c !== '\n').length;
+      const padding = img.height * 0.08;
+      const availableH = img.height - padding * 2;
+      const lineHeight = availableH / printable;
+      const fontSize = Math.min(Math.max(16, Math.floor(lineHeight / 1.3)), Math.round(img.height / 12));
       ctx.font = `${fontSize}px "Hiragino Mincho ProN", "Yu Mincho", serif`;
 
       // 半透明帯（右側）
       const bandW = fontSize * 2.5;
-      const bandX = img.width - bandW - fontSize;
+      const bandX = img.width - bandW - fontSize * 0.5;
       ctx.fillStyle = 'rgba(255,255,255,0.6)';
       ctx.fillRect(bandX, 0, bandW, img.height);
 
@@ -142,14 +146,13 @@ function compositeImage(base64, haiku) {
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       const x = bandX + bandW / 2;
-      const startY = fontSize * 1.5;
-      const lineHeight = fontSize * 1.3;
+      const totalH = (printable - 1) * fontSize * 1.3;
+      const startY = (img.height - totalH) / 2;
 
       chars.forEach((ch, i) => {
         if (ch === '\n') return;
-        // 改行前の文字数を数えて位置調整
         const idx = chars.slice(0, i).filter(c => c !== '\n').length;
-        ctx.fillText(ch, x, startY + idx * lineHeight);
+        ctx.fillText(ch, x, startY + idx * fontSize * 1.3);
       });
 
       canvas.toBlob(blob => {
