@@ -87,7 +87,7 @@ async function generateHaiku(base64) {
   const apiKey = localStorage.getItem('gemini_api_key');
   if (!apiKey) throw new Error('APIキーが設定されていません');
 
-  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'

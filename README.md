@@ -29,7 +29,7 @@ A PWA app that generates haiku poems from your photos using AI.
 ## 技術スタック / Tech Stack
 
 - HTML / CSS / JavaScript（フレームワーク不使用 / no frameworks）
-- [Gemini API](https://ai.google.dev/)（gemini-2.0-flash） — 画像認識 + 俳句生成 / image recognition + haiku generation
+- [Gemini API](https://ai.google.dev/)（gemini-2.5-flash） — 画像認識 + 俳句生成 / image recognition + haiku generation
 - Canvas API — 画像合成・縦書き描画 / image compositing & vertical text
 - Service Worker — オフラインキャッシュ / offline caching
 - Web Share API — 共有機能 / sharing
