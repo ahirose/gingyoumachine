@@ -31,6 +31,24 @@ $('saveKeyBtn').onclick = () => {
 
 $('closeSettingsBtn').onclick = () => showScreen(mainScreen);
 
+// --- 位置情報 ---
+async function getLocation() {
+  try {
+    const pos = await new Promise((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
+    });
+    const { latitude, longitude } = pos.coords;
+    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&accept-language=ja`, {
+      headers: { 'User-Agent': 'GingyouMachine/1.0' }
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.display_name || null;
+  } catch {
+    return null;
+  }
+}
+
 // --- カメラ ---
 $('captureBtn').onclick = () => {
   if (!localStorage.getItem('gemini_api_key')) {
@@ -48,8 +66,8 @@ cameraInput.onchange = async e => {
   showScreen(loadingScreen);
 
   try {
-    const base64 = await resizeAndEncode(file);
-    const haiku = await generateHaiku(base64);
+    const [base64, location] = await Promise.all([resizeAndEncode(file), getLocation()]);
+    const haiku = await generateHaiku(base64, location);
     await compositeImage(base64, haiku);
     haikuText.textContent = haiku;
     showScreen(resultScreen);
@@ -83,9 +101,13 @@ function resizeAndEncode(file) {
 }
 
 // --- Gemini API ---
-async function generateHaiku(base64) {
+async function generateHaiku(base64, location) {
   const apiKey = localStorage.getItem('gemini_api_key');
   if (!apiKey) throw new Error('APIキーが設定されていません');
+
+  const prompt = location
+    ? `この写真は「${location}」で撮影されました。この場所と写真の内容を踏まえて、季語を含む俳句を一句詠んでください。五七五の形式で、俳句のみを出力してください。余計な説明は不要です。`
+    : 'この写真を見て、季語を含む俳句を一句詠んでください。五七五の形式で、俳句のみを出力してください。余計な説明は不要です。';
 
   const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
     method: 'POST',
@@ -96,7 +118,7 @@ async function generateHaiku(base64) {
       contents: [{
         parts: [
           { inlineData: { mimeType: 'image/jpeg', data: base64 } },
-          { text: 'この写真を見て、季語を含む俳句を一句詠んでください。五七五の形式で、俳句のみを出力してください。余計な説明は不要です。' }
+          { text: prompt }
         ]
       }]
     })
