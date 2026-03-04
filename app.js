@@ -49,68 +49,10 @@ async function getLocation() {
   }
 }
 
-// --- 撮影日時（EXIF） ---
-function getPhotoDateTime(file) {
-  return new Promise(resolve => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        const view = new DataView(reader.result);
-        if (view.getUint16(0) !== 0xFFD8) { resolve(null); return; }
-        let offset = 2;
-        while (offset < view.byteLength - 1) {
-          const marker = view.getUint16(offset);
-          if (marker === 0xFFE1) { // APP1
-            const length = view.getUint16(offset + 2);
-            const exif = parseExifDate(view, offset + 4, length);
-            resolve(exif);
-            return;
-          }
-          if ((marker & 0xFF00) !== 0xFF00) break;
-          offset += 2 + view.getUint16(offset + 2);
-        }
-        resolve(null);
-      } catch { resolve(null); }
-    };
-    reader.onerror = () => resolve(null);
-    reader.readAsArrayBuffer(file.slice(0, 65536));
-  });
-}
-
-function parseExifDate(view, start, length) {
-  const exifStr = String.fromCharCode(view.getUint8(start), view.getUint8(start+1), view.getUint8(start+2), view.getUint8(start+3));
-  if (exifStr !== 'Exif') return null;
-  const tiffStart = start + 6;
-  const le = view.getUint16(tiffStart) === 0x4949;
-  const g16 = (o) => view.getUint16(o, le);
-  const g32 = (o) => view.getUint32(o, le);
-
-  function findTag(ifdOffset, tag) {
-    const count = g16(ifdOffset);
-    for (let i = 0; i < count; i++) {
-      const entry = ifdOffset + 2 + i * 12;
-      if (g16(entry) === tag) return entry;
-    }
-    return null;
-  }
-
-  function readString(offset, len) {
-    let s = '';
-    for (let i = 0; i < len - 1; i++) s += String.fromCharCode(view.getUint8(offset + i));
-    return s;
-  }
-
-  const ifd0 = tiffStart + g32(tiffStart + 4);
-  const exifEntry = findTag(ifd0, 0x8769); // ExifIFD pointer
-  if (!exifEntry) return null;
-  const exifIfd = tiffStart + g32(exifEntry + 8);
-  const dtEntry = findTag(exifIfd, 0x9003); // DateTimeOriginal
-  if (!dtEntry) return null;
-  const dtOffset = tiffStart + g32(dtEntry + 8);
-  const raw = readString(dtOffset, 20); // "YYYY:MM:DD HH:MM:SS"
-  const m = raw.match(/^(\d{4}):(\d{2}):(\d{2}) (\d{2}):(\d{2})/);
-  if (!m) return null;
-  return `${m[1]}年${parseInt(m[2])}月${parseInt(m[3])}日 ${m[4]}時${m[5]}分`;
+// --- 撮影日時 ---
+function getPhotoDateTime() {
+  const now = new Date();
+  return `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日 ${now.getHours()}時${String(now.getMinutes()).padStart(2, '0')}分`;
 }
 
 // --- カメラ ---
@@ -130,7 +72,8 @@ cameraInput.onchange = async e => {
   showScreen(loadingScreen);
 
   try {
-    const [base64, location, dateTime] = await Promise.all([resizeAndEncode(file), getLocation(), getPhotoDateTime(file)]);
+    const [base64, location] = await Promise.all([resizeAndEncode(file), getLocation()]);
+    const dateTime = getPhotoDateTime();
     const haiku = await generateHaiku(base64, location, dateTime);
     await compositeImage(base64, haiku);
     haikuText.textContent = haiku;
