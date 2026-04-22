@@ -1,4 +1,4 @@
-# 吟行マシン / Gingyou Machine
+# 吟行マシン / Ginko Machine
 
 写真を撮ると、AIが俳句を詠んでくれるPWAアプリです。
 
