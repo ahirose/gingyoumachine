@@ -15,6 +15,7 @@ function showScreen(screen) {
   [loadingScreen, resultScreen, settingsScreen].forEach(s => s.hidden = true);
   mainScreen.style.display = screen === mainScreen ? '' : 'none';
   if (screen !== mainScreen) screen.hidden = false;
+  if (screen === mainScreen) renderHistory();
 }
 
 // --- 設定 ---
@@ -77,8 +78,8 @@ cameraInput.onchange = async e => {
     const haiku = await generateHaiku(base64, location, dateTime);
     await compositeImage(base64, haiku);
     haikuText.textContent = haiku;
-    showScreen(resultScreen);
     saveToHistory();
+    showScreen(resultScreen);
   } catch (err) {
     alert('エラー: ' + err.message);
     showScreen(mainScreen);
@@ -222,21 +223,50 @@ if (navigator.share) {
 $('retryBtn').onclick = () => showScreen(mainScreen);
 
 // --- 履歴 ---
-function saveToHistory() {
-  if (!currentBlob) return;
-  const reader = new FileReader();
-  reader.onload = () => {
-    const items = JSON.parse(localStorage.getItem('gingyou_history') || '[]');
-    items.unshift({ img: reader.result, date: Date.now() });
-    if (items.length > 12) items.length = 12;
-    try { localStorage.setItem('gingyou_history', JSON.stringify(items)); } catch {}
-    renderHistory();
-  };
-  reader.readAsDataURL(currentBlob);
+function getHistoryThumbnail(maxSize = 200) {
+  const canvas = resultCanvas;
+  if (!canvas.width || !canvas.height) return null;
+  const scale = Math.min(1, maxSize / Math.max(canvas.width, canvas.height));
+  const w = Math.round(canvas.width * scale);
+  const h = Math.round(canvas.height * scale);
+  const thumb = document.createElement('canvas');
+  thumb.width = w;
+  thumb.height = h;
+  thumb.getContext('2d').drawImage(canvas, 0, 0, w, h);
+  return thumb.toDataURL('image/jpeg', 0.75);
 }
 
-function renderHistory() {
+function persistHistory(items) {
+  while (items.length) {
+    try {
+      localStorage.setItem('gingyou_history', JSON.stringify(items));
+      return true;
+    } catch {
+      items.pop();
+    }
+  }
+  return false;
+}
+
+function saveToHistory() {
+  const thumbnail = getHistoryThumbnail();
+  if (!thumbnail) return;
+
   const items = JSON.parse(localStorage.getItem('gingyou_history') || '[]');
+  items.unshift({ img: thumbnail, date: Date.now() });
+  if (items.length > 12) items.length = 12;
+  persistHistory(items);
+  renderHistory(items);
+}
+
+function renderHistory(items) {
+  if (!items) {
+    try {
+      items = JSON.parse(localStorage.getItem('gingyou_history') || '[]');
+    } catch {
+      items = [];
+    }
+  }
   if (!items.length) { historyEl.innerHTML = ''; return; }
   historyEl.innerHTML = '<h3>最近の作品</h3><div class="history-grid"></div>';
   const grid = historyEl.querySelector('.history-grid');
